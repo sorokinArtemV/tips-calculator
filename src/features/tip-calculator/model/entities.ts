@@ -4,6 +4,4 @@
   description: string;
 }
 
-export type MemberRowProps = {
-  member: Member;
-}
+export type MemberDraft = { id: string; name: string; description: string };

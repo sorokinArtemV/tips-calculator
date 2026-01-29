@@ -2,22 +2,23 @@
   Button,
   Card,
   CardContent,
-  CardHeader,
-  Divider, List,
-  ListItem, Stack,
-  TextField,
+  CardHeader, Dialog,
+  Divider,
+  List,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useState } from 'react';
-import type { Member } from '../tip-calculator/model/entities.ts';
+import type { Member, MemberDraft } from '../tip-calculator/model/entities.ts';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { MemberRow } from '../tip-calculator/ui/MemberRow.tsx';
 import { AddMemberForm } from './AddMemberForm.tsx';
+import { EditMemberForm } from './EditMemberForm.tsx';
+
 
 export function Members() {
   const [members, setMembers] = useState<Member[]>([]);
   const [isAddMemberFormOpen, setIsAddMemberFormOpen] = useState(false);
-
+  const [draft, setDraft] = useState<MemberDraft | null>(null);
 
   const handleToggleAddMemberForm = () => setIsAddMemberFormOpen(isActive => !isActive);
 
@@ -30,6 +31,23 @@ export function Members() {
     };
     setMembers((members: Member[]) => [...members, newMember]);
     return;
+  };
+
+  const handleOpenEdit = (m: Member) => setDraft({ id: m.id, name: m.name, description: m.description });
+
+  const handleSaveEdit = () => {
+    if (!draft) return;
+
+    setMembers(prev => prev.map(m => (m.id === draft.id ? {
+      ...m,
+      name: draft.name,
+      description: draft.description
+    } : m)));
+    setDraft(null);
+  };
+
+  const handleDeleteMember = (member: Member) => {
+    setMembers(prev => prev.filter(m => m.id !== member.id));
   };
 
   return (
@@ -50,7 +68,12 @@ export function Members() {
       <CardContent>
         <List disablePadding>
           {members.map(m => (
-            <MemberRow key={m.id} member={{ id: m.id, name: m.name, description: m.description }}/>
+            <MemberRow
+              key={m.id}
+              member={m}
+              onEditClick={() => handleOpenEdit(m)}
+              onDeleteClick={() => handleDeleteMember(m)}
+            />
           ))}
         </List>
         {!isAddMemberFormOpen &&
@@ -61,7 +84,23 @@ export function Members() {
           </>
         }
       </CardContent>
+      <Dialog
+        open={Boolean(draft)}
+        onClose={() => setDraft(null)}
+        fullWidth
+        maxWidth="sm"
+      >
+        {draft && (
+          <EditMemberForm
+            draft={draft}
+            setDraft={setDraft}
+            onSave={handleSaveEdit}
+            onCancel={() => setDraft(null)}
+          />
+        )}
+      </Dialog>
     </Card>
-
   );
 }
+
+

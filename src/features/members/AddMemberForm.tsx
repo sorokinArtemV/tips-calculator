@@ -5,7 +5,7 @@ import { Button, ListItem, Stack, TextField } from '@mui/material';
 import type { Member } from '../tip-calculator/model/entities.ts';
 
 type AddMemberFormProps = {
-  onAdd: (member: Member) => void;
+  onAdd?: (member: Member) => void;
 }
 
 export function AddMemberForm({ onAdd }: AddMemberFormProps) {
@@ -24,7 +24,7 @@ export function AddMemberForm({ onAdd }: AddMemberFormProps) {
   });
 
   const onSubmit = (data: MemberForm) => {
-    onAdd({
+    onAdd?.({
       id: crypto.randomUUID(),
       name: data.name,
       description: data.description ?? "",
